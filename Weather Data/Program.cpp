@@ -15,6 +15,7 @@ void Program::mainmenu()
 
 	std::cout << " Analyzing data" << std::endl;
 	//Analyze data
+	access.convertData(rawData);
 
 
 	bool stay = true;

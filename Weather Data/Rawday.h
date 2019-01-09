@@ -16,7 +16,7 @@ public:
 
 	long int get_time() { return this->time; }
 	float get_temperature() { return this->temperature; }
-	float get_humidity() { return this->humidity; }
+	int get_humidity() { return this->humidity; }
 
 	~Rawday();
 };

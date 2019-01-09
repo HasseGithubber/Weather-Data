@@ -27,10 +27,12 @@ public:
 	void fileInput(std::vector <Rawdata *> &);
 
 	void convertData(std::vector <Rawdata *> &);
-	void averageTemperature(std::vector <Rawdata *> &, long int &, float &, bool);
-	void averageHumidity(std::vector <Rawdata *> &, long int &, int &, bool);
+	void averageTemperature(Rawdata * &, float &, bool);
+	void averageHumidity(Rawdata * &, int &, bool);
 	//void averageValues(std::vector <Rawdata *> &, long int &, float &, int &, bool);
-	long int moldRisk(std::vector <Rawdata *> &, long int &, bool);
+	long int moldRisk(Rawdata * &, bool);
+	float temperatureDifference(Rawdata * &, bool);
+	int doorOpen(Rawdata * &, bool);
 
 	~Rawdata();
 };
