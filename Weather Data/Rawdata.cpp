@@ -140,8 +140,8 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 // Converts the raw data into analyzed data
 void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 {
-	float send_aveTemperature;
-	int send_aveHumidity;
+	float send_aveTemperature = 0;
+	int send_aveHumidity = 0;
 
 	long int vecsize = rawvector.size();
 
@@ -154,25 +154,32 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 		rawvector[i]->analyzedInside.set_aveHumidity(send_aveHumidity);
 		//rawvector[i]->analyzedInside(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], true), temperatureDifference(rawvector[i], true), doorOpen(rawvector[i], true));
 
+		send_aveHumidity = 0;
+		send_aveTemperature = 0;
+
 		averageTemperature(rawvector[i], send_aveTemperature, false);
 		rawvector[i]->analyzedOutside.set_aveTemperature(send_aveTemperature);
 		averageHumidity(rawvector[i], send_aveHumidity, false);
 		rawvector[i]->analyzedOutside.set_aveHumidity(send_aveHumidity);
 		//rawvector[i]->analyzedOutside(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], false), temperatureDifference(rawvector[i], false), doorOpen(rawvector[i], false));
+
+		send_aveHumidity = 0;
+		send_aveTemperature = 0;
 	}
 }
 
 //Räknar ut medeltemperatur
 void Rawdata::averageTemperature(Rawdata * &vecElement, float &aveTemp, bool inOut)
 {
-	size_t vecsize;
+	int vecsize;
 
 	if (inOut) { vecsize = vecElement->dataInside.size(); }
 	else { vecsize = vecElement->dataOutside.size(); };
 
-	LOG(vecsize);
+	//LOG("Averagetemp size");
+	//LOG(vecsize);
 
-	for (long int i = 0; i < vecsize; i++)
+	for (int i = 0; i < vecsize; i++)
 	{
 		if (inOut)
 		{
@@ -189,19 +196,26 @@ void Rawdata::averageTemperature(Rawdata * &vecElement, float &aveTemp, bool inO
 // Räknar ut medel fuktighet
 void Rawdata::averageHumidity(Rawdata * &vecElement, int &aveHumid, bool inOut)
 {
-	long int vecsize;
+	int vecsize;
 
 	if (inOut) { vecsize = vecElement->dataInside.size(); }
 	else { vecsize = vecElement->dataOutside.size(); }
 
-	for (long int i = 0; i < vecsize; i++)
+	LOG("Averagehumid size");
+	LOG(vecsize);
+
+	for (int i = 0; i < vecsize; i++)
 	{
 		if (inOut)
 		{
+			LOG("Moist inne");
+			LOG(aveHumid);
 			aveHumid = aveHumid + vecElement->dataInside[i]->get_humidity();
 		}
 		else
 		{
+			LOG("Moist ute");
+			LOG(aveHumid);
 			aveHumid = aveHumid + vecElement->dataOutside[i]->get_humidity();
 		}
 	}
