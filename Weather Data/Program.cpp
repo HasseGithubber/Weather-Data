@@ -17,7 +17,6 @@ void Program::mainmenu()
 	//Analyze data
 	access.convertData(rawData);
 
-
 	bool stay = true;
 	std::cout << " -Weather Analyzer-" << std::endl;
 	std::cout << " [1] Inspect inside data" << std::endl;
@@ -29,10 +28,10 @@ void Program::mainmenu()
 		switch (answer[0])
 		{
 		case '1':
-			stay = false;
+			//stay = false;
 			break;
 		case '2':
-			stay = false;
+			//stay = false;
 			break;
 		case '3':
 			stay = false;

@@ -149,19 +149,16 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 	for (long int i = 0; i < vecsize; i++)
 	{
 		averageTemperature(rawvector[i], send_aveTemperature, true);
-		rawvector[i]->analyzedInside.set_aveTemperature(send_aveTemperature);
 		averageHumidity(rawvector[i], send_aveHumidity, true);
-		rawvector[i]->analyzedInside.set_aveHumidity(send_aveHumidity);
-		//rawvector[i]->analyzedInside(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], true), temperatureDifference(rawvector[i], true), doorOpen(rawvector[i], true));
 
+		rawvector[i]->analyzedInside = Analyzeddata(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], true), temperatureDifference(rawvector[i], true), doorOpen(rawvector[i], true));
 		send_aveHumidity = 0;
 		send_aveTemperature = 0;
 
 		averageTemperature(rawvector[i], send_aveTemperature, false);
-		rawvector[i]->analyzedOutside.set_aveTemperature(send_aveTemperature);
 		averageHumidity(rawvector[i], send_aveHumidity, false);
-		rawvector[i]->analyzedOutside.set_aveHumidity(send_aveHumidity);
-		//rawvector[i]->analyzedOutside(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], false), temperatureDifference(rawvector[i], false), doorOpen(rawvector[i], false));
+
+		rawvector[i]->analyzedOutside = Analyzeddata(send_aveTemperature, send_aveHumidity, moldRisk(rawvector[i], false), temperatureDifference(rawvector[i], false), doorOpen(rawvector[i], false));
 
 		send_aveHumidity = 0;
 		send_aveTemperature = 0;
@@ -175,9 +172,6 @@ void Rawdata::averageTemperature(Rawdata * &vecElement, float &aveTemp, bool inO
 
 	if (inOut) { vecsize = vecElement->dataInside.size(); }
 	else { vecsize = vecElement->dataOutside.size(); };
-
-	//LOG("Averagetemp size");
-	//LOG(vecsize);
 
 	for (int i = 0; i < vecsize; i++)
 	{
@@ -201,21 +195,14 @@ void Rawdata::averageHumidity(Rawdata * &vecElement, int &aveHumid, bool inOut)
 	if (inOut) { vecsize = vecElement->dataInside.size(); }
 	else { vecsize = vecElement->dataOutside.size(); }
 
-	LOG("Averagehumid size");
-	LOG(vecsize);
-
 	for (int i = 0; i < vecsize; i++)
 	{
 		if (inOut)
 		{
-			LOG("Moist inne");
-			LOG(aveHumid);
 			aveHumid = aveHumid + vecElement->dataInside[i]->get_humidity();
 		}
 		else
 		{
-			LOG("Moist ute");
-			LOG(aveHumid);
 			aveHumid = aveHumid + vecElement->dataOutside[i]->get_humidity();
 		}
 	}
@@ -251,12 +238,12 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 	long int vecsize, startTime, stopTime, moldElapsedtime;
 	float temp;
 	double moldThreshold;
-	bool b_moldRisk;
+	bool getstarttime = true;
 
 	if (inOut) { vecsize = vecElement->dataInside.size(); }
 	else { vecsize = vecElement->dataOutside.size(); }
 
-	for (long int i = 0; i < vecsize; i++)
+	for (long int i = 0; i < vecsize - 1; i++)
 	{
 		if (inOut)
 		{
@@ -264,14 +251,25 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 			moldThreshold = -0.0015 * pow(temp, 3) + 0.1193 * pow(temp, 2) - 2.9878 * temp + 102.96;
 			if (vecElement->dataInside[i]->get_humidity() > moldThreshold)
 			{
-				if (!b_moldRisk) { startTime = vecElement->dataInside[i]->get_time(); }
-				b_moldRisk = true;
-			}
-			else
-			{
-				if (b_moldRisk) { stopTime = vecElement->dataInside[i]->get_time(); }
-				b_moldRisk = false;
-				moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
+				if (getstarttime)
+				{
+					startTime = vecElement->dataInside[i]->get_time();
+					getstarttime = false;
+				}
+				if (!i == vecsize - 2)
+				{
+					if (vecElement->dataInside[i + 1]->get_humidity() < moldThreshold)
+					{
+						stopTime = vecElement->dataInside[i + 1]->get_humidity();
+						moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
+						getstarttime = true;
+					}
+				}
+				else
+				{
+					stopTime = vecElement->dataInside[i + 1]->get_humidity();
+					moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
+				}
 			}
 		}
 		else
@@ -280,14 +278,25 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 			moldThreshold = -0.0015 * pow(temp, 3) + 0.1193 * pow(temp, 2) - 2.9878 * temp + 102.96;
 			if (vecElement->dataOutside[i]->get_humidity() > moldThreshold)
 			{
-				if (!b_moldRisk) { startTime = vecElement->dataOutside[i]->get_time(); }
-				b_moldRisk = true;
-			}
-			else
-			{
-				if (b_moldRisk) { stopTime = vecElement->dataOutside[i]->get_time(); }
-				b_moldRisk = false;
-				moldElapsedtime = moldElapsedtime = (stopTime * 360 - startTime * 360);
+				if (getstarttime)
+				{
+					startTime = vecElement->dataOutside[i]->get_time();
+					getstarttime = false;
+				}
+				if (!i == vecsize - 2)
+				{
+					if (vecElement->dataOutside[i + 1]->get_humidity() < moldThreshold)
+					{
+						stopTime = vecElement->dataOutside[i + 1]->get_humidity();
+						moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
+						getstarttime = true;
+					}
+				}
+				else
+				{
+					stopTime = vecElement->dataInside[i + 1]->get_humidity();
+					moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
+				}
 			}
 		}
 	}
