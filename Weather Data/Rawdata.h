@@ -20,7 +20,7 @@ public:
 
 	//Konstruktors
 	Rawdata() {};
-	Rawdata(std::string, std::string, std::string, std::string, std::string);
+	Rawdata(std::string, std::string, std::string, std::string, std::string, std::string, std::string);
 
 	long int get_date() { return this->date; }
 

@@ -3,7 +3,9 @@ class Rawday
 {
 private:
 
-	long int time;
+	int hour;
+	int minutes;
+	int seconds;
 	//bool inOut;
 	float temperature;
 	int humidity;
@@ -11,10 +13,12 @@ private:
 public:
 
 	Rawday();
-	Rawday(long int time, float temperature, int humidity) 
-		: time(time), temperature(temperature), humidity(humidity) {};
+	Rawday(int hour, int minutes, int seconds, float temperature, int humidity) 
+		: hour(hour), minutes(minutes), seconds(seconds), temperature(temperature), humidity(humidity) {};
 
-	long int get_time() { return this->time; }
+	int get_hour() { return this->hour; }
+	int get_minutes() { return this->minutes; }
+	int get_seconds() { return this->seconds; }
 	float get_temperature() { return this->temperature; }
 	int get_humidity() { return this->humidity; }
 

@@ -2,25 +2,25 @@
 #include "Rawdata.h"
 
 
-Rawdata::Rawdata(std::string date, std::string time, std::string inOut, std::string temperature, std::string humidity) : date(stol(date))
+Rawdata::Rawdata(std::string date, std::string timeH, std::string timeM, std::string timeS, std::string inOut, std::string temperature, std::string humidity) : date(stol(date))
 {
-	std::string s_time, s_inOut, s_temperature, s_humidity;
-	std::stringstream ss_inOut(inOut), ss_time(time), ss_temperature(temperature), ss_humidity(humidity);
-	//long int li_time;
+	std::string s_timeH, s_timeM, s_timeS, s_inOut, s_temperature, s_humidity;
+	std::stringstream ss_inOut(inOut), ss_timeH(timeH), ss_timeM(timeM), ss_timeS(timeS), ss_temperature(temperature), ss_humidity(humidity);
 
 	while (ss_inOut >> s_inOut)
 	{
-		ss_time >> s_time;
-		//li_time = stol(s_time) * 360;
+		ss_timeH >> s_timeH;
+		ss_timeM >> s_timeM;
+		ss_timeS >> s_timeS;
 		ss_temperature >> s_temperature;
 		ss_humidity >> s_humidity;
 		if (s_inOut == "Inne")
 		{
-			dataInside.push_back(new Rawday(stol(s_time), stof(s_temperature), stoi(s_humidity)));
+			dataInside.push_back(new Rawday(stoi(s_timeH), stoi(s_timeH), stoi(s_timeH), stof(s_temperature), stoi(s_humidity)));
 		}
 		else
 		{
-			dataOutside.push_back(new Rawday(stol(s_time), stof(s_temperature), stoi(s_humidity)));
+			dataOutside.push_back(new Rawday(stoi(s_timeH), stoi(s_timeH), stoi(s_timeH), stof(s_temperature), stoi(s_humidity)));
 		}
 	}
 }
@@ -30,7 +30,7 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 {
 	std::string temps_dateY, temps_dateM, temps_dateD, temps_timeH, temps_timeM, temps_timeS, temps_inOut, temps_temperature, temps_humidity,
 		dateY, dateM, dateD, timeH, timeM, timeS, inOut, temperature, humidity;
-	bool jump = true, nextdate = false, endof = false;
+	bool jumpdate = true, nextdate = false, endof = false;
 
 	std::ifstream file("tempdata2mindre.txt");
 	if (file.is_open())
@@ -43,19 +43,19 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 
 		while (!file.eof())
 		{
-			while (!nextdate)
+			if (!nextdate)
 			{
 				getline(file, timeH, ':');
 				getline(file, timeM, ':');
 				getline(file, timeS, ',');
-				timeH.append(timeM);
-				timeH.append(timeS);
+				//timeH.append(timeM);
+				//timeH.append(timeS);
 
 				getline(file, inOut, ',');
 				getline(file, temperature, ',');
 				getline(file, humidity);
 
-				if (jump)
+				if (jumpdate)
 				{
 					getline(file, temps_dateY, '-');
 					getline(file, temps_dateM, '-');
@@ -78,8 +78,8 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 						getline(file, temps_timeH, ':');
 						getline(file, temps_timeM, ':');
 						getline(file, temps_timeS, ',');
-						temps_timeH.append(temps_timeM);
-						temps_timeH.append(temps_timeS);
+						//temps_timeH.append(temps_timeM);
+						//temps_timeH.append(temps_timeS);
 
 						getline(file, temps_inOut, ',');
 						getline(file, temps_temperature, ',');
@@ -87,6 +87,10 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 
 						timeH.append(" ");
 						timeH.append(temps_timeH);
+						timeM.append(" ");
+						timeM.append(temps_timeM);
+						timeS.append(" ");
+						timeS.append(temps_timeS);
 						inOut.append(" ");
 						inOut.append(temps_inOut);
 						temperature.append(" ");
@@ -96,7 +100,7 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 
 						if (!file.eof())
 						{
-							if (jump)
+							if (jumpdate)
 							{
 								getline(file, temps_dateY, '-');
 								getline(file, temps_dateM, '-');
@@ -121,15 +125,15 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 				}
 				nextdate = true;
 			}
-			if (jump)
+			if (jumpdate)
 			{
-				rawvector.push_back(new Rawdata(dateY, timeH, inOut, temperature, humidity));
-				jump = false;
+				rawvector.push_back(new Rawdata(dateY, timeH, timeM, timeS, inOut, temperature, humidity));
+				jumpdate = false;
 			}
 			else
 			{
-				rawvector.push_back(new Rawdata(temps_dateY, timeH, inOut, temperature, humidity));
-				jump = true;
+				rawvector.push_back(new Rawdata(temps_dateY, timeH, timeM, timeS, inOut, temperature, humidity));
+				jumpdate = true;
 			}
 			nextdate = false;
 		}
@@ -235,7 +239,7 @@ void Rawdata::averageHumidity(Rawdata * &vecElement, int &aveHumid, bool inOut)
 // Räknar ut mögelrisk i tid för en dag --- Gör ny till en siffra.
 long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 {
-	long int vecsize, startTime, stopTime, moldElapsedtime;
+	long int vecsize, startTime, stopTime, moldElapsedtime = 0;
 	float temp;
 	double moldThreshold;
 	bool getstarttime = true;
@@ -258,9 +262,10 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 				}
 				if (!i == vecsize - 2)
 				{
+					moldThreshold = -0.0015 * pow(temp, 3) + 0.1193 * pow(temp, 2) - 2.9878 * temp + 102.96;
 					if (vecElement->dataInside[i + 1]->get_humidity() < moldThreshold)
 					{
-						stopTime = vecElement->dataInside[i + 1]->get_humidity();
+						stopTime = vecElement->dataInside[i + 1]->get_time();
 						moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
 						getstarttime = true;
 					}
@@ -285,6 +290,7 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 				}
 				if (!i == vecsize - 2)
 				{
+					moldThreshold = -0.0015 * pow(temp, 3) + 0.1193 * pow(temp, 2) - 2.9878 * temp + 102.96;
 					if (vecElement->dataOutside[i + 1]->get_humidity() < moldThreshold)
 					{
 						stopTime = vecElement->dataOutside[i + 1]->get_humidity();
@@ -294,7 +300,7 @@ long int Rawdata::moldRisk(Rawdata * &vecElement, bool inOut)
 				}
 				else
 				{
-					stopTime = vecElement->dataInside[i + 1]->get_humidity();
+					stopTime = vecElement->dataOutside[i + 1]->get_time();
 					moldElapsedtime = moldElapsedtime + (stopTime * 360 - startTime * 360);
 				}
 			}
