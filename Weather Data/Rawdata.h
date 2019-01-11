@@ -10,7 +10,7 @@ class Rawdata
 private:
 
 	long int date;
-	float temperatureDiffinOut;
+	float temperatureDiff;
 
 	std::vector <Rawday *> dataInside;
 	std::vector <Rawday *> dataOutside;
@@ -29,16 +29,12 @@ public:
 	void fileInput(std::vector <Rawdata *> &);
 
 	void convertData(std::vector <Rawdata *> &);
+
 	void averageTemperature(Rawdata * &, float &, bool);
 	void averageHumidity(Rawdata * &, int &, bool);
-	
-	//void averageValues(std::vector <Rawdata *> &, long int &, float &, int &, bool);
-	
 	long int moldRisk(Rawdata * &, bool);
-	float temperatureDifferenceSep(Rawdata * &, bool);
-
 	void findHighLowtemp(std::vector <Rawday *> &, float &, float &);
-	float temperatureDiffinOut(Rawdata * &);
+	float temperatureDiffInOut(Rawdata * &);
 	int doorOpen(Rawdata * &, bool);
 
 	~Rawdata();

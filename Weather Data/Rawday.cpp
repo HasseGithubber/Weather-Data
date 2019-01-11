@@ -6,6 +6,7 @@ Rawday::Rawday()
 {
 }
 
+
 Rawday::~Rawday()
 {
 }
