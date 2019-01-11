@@ -4,17 +4,14 @@
 
 Program::Program()
 {
+
 }
 
 void Program::mainmenu()
 {
 	std::cout << " Loading in raw data" << std::endl;
-
-	//Load data
 	access.fileInput(rawData);
-
 	std::cout << " Analyzing data" << std::endl;
-	//Analyze data
 	access.convertData(rawData);
 
 	bool stay = true;

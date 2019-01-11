@@ -6,8 +6,6 @@ Analyzeddata::Analyzeddata()
 {
 }
 
-
-
 Analyzeddata::~Analyzeddata()
 {
 }

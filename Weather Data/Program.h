@@ -4,10 +4,8 @@
 class Program
 {
 private:
-	std::vector <Rawdata *> rawData;
 
-	//std::vector <Analyzeddata *> anaInside;
-	//std::vector <Analyzeddata *> anaOutside;
+	std::vector <Rawdata *> rawData;
 
 	std::string answer;
 	bool inOut;

@@ -1,12 +1,11 @@
 #pragma once
+#include "Time.h"
+
 class Rawday
 {
 private:
 
-	int hour;
-	int minutes;
-	int seconds;
-	//bool inOut;
+	int time;
 	float temperature;
 	int humidity;
 
@@ -14,11 +13,12 @@ public:
 
 	Rawday();
 	Rawday(int hour, int minutes, int seconds, float temperature, int humidity) 
-		: hour(hour), minutes(minutes), seconds(seconds), temperature(temperature), humidity(humidity) {};
+		: temperature(temperature), humidity(humidity)
+	{
+		time = hour * 3600 + minutes * 60 + seconds;
+	};
 
-	int get_hour() { return this->hour; }
-	int get_minutes() { return this->minutes; }
-	int get_seconds() { return this->seconds; }
+	int get_time() { return this->time; }
 	float get_temperature() { return this->temperature; }
 	int get_humidity() { return this->humidity; }
 
