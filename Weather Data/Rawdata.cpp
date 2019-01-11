@@ -48,8 +48,6 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 			getline(file, timeH, ':');
 			getline(file, timeM, ':');
 			getline(file, timeS, ',');
-			//timeH.append(timeM);
-			//timeH.append(timeS);
 
 			getline(file, inOut, ',');
 			getline(file, temperature, ',');
