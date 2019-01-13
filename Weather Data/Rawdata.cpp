@@ -3,7 +3,7 @@
 
 
 Rawdata::Rawdata(std::string date, std::string timeH, std::string timeM, std::string timeS, std::string inOut, std::string temperature, std::string humidity)
-	: date(stol(date))
+	: date(stoi(date))
 {
 	std::string s_timeH, s_timeM, s_timeS, s_inOut, s_temperature, s_humidity;
 	std::stringstream ss_inOut(inOut), ss_timeH(timeH), ss_timeM(timeM), ss_timeS(timeS), ss_temperature(temperature), ss_humidity(humidity);
@@ -142,8 +142,8 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 {
 	float aveTemperature;
-	int aveHumidity, moldRiskTime = 0;
-	double aveMoldIndexTime = 0, aveMoldIndex = 0;
+	int aveHumidity, moldRiskTime;
+	double aveMoldIndexTime, aveMoldIndex;
 
 	int vecsize = rawvector.size();
 
@@ -160,9 +160,9 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 
 		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], true));
 
-		moldRiskTime = 0;
-		aveMoldIndexTime = 0;
-		aveMoldIndex = 0;
+		//moldRiskTime = 0;
+		//aveMoldIndexTime = 0;
+		//aveMoldIndex = 0;
 
 		averageTemperature(rawvector[i], aveTemperature, false);
 		averageHumidity(rawvector[i], aveHumidity, false);
@@ -174,9 +174,9 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 
 		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], false));
 		
-		moldRiskTime = 0;
-		aveMoldIndexTime = 0;
-		aveMoldIndex = 0;
+		//moldRiskTime = 0;
+		//aveMoldIndexTime = 0;
+		//aveMoldIndex = 0;
 	}
 }
 
@@ -255,18 +255,20 @@ void Rawdata::averageHumidity(Rawdata * &vecElement, int &aveHumid, bool inOut)
 //	}
 //}
 
-//-------------------------------------------------------------------------
-// :: Sammanlagda tiden för mögelrisk och dess medel-mögelindex under en dag
-//-------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------
+// :: Sammanlagda tiden för mögelrisk och dess medel-mögelindex under en dag + medelmögelindex för hela dagen
+//----------------------------------------------------------------------------------------------------------
 
 void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double &aveMoldIndexTime, double &aveMoldIndex)
 {
-	int vecsize, startTime, stopTime, n = 0;
+	int vecsize = vector.size(), startTime, stopTime, n = 0;
 	float temperature;
 	double humidMoldThreshold;
 	bool getstarttime = true;
 
-	vecsize = vector.size();
+	moldRiskTime = 0;
+	aveMoldIndexTime = 0;
+	aveMoldIndex = 0;
 
 	for (int i = 0; i < vecsize - 1; i++)
 	{
@@ -317,7 +319,7 @@ void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double
 	aveMoldIndex = aveMoldIndex / vecsize;
 }
 
-// Gammal kod :: Räknar ut hur länge det är mögelrisk i tid och mögelindex för riskperioden på en dag
+// Gammal mögel index kod :: Räknar ut hur länge det är mögelrisk i tid och mögelindex för riskperioden på en dag
 
 //long int Rawdata::oldmoldRisk(Rawdata * &vecElement, bool inOut)
 //{
@@ -454,10 +456,8 @@ float Rawdata::temperatureDifferenceSep(Rawdata * &vecElement, bool inOut)
 // Går igenom vectorn och letar fram den högsta och lägsta temperaturen
 void Rawdata::findHighLowtemp(std::vector <Rawday *> &vector, float & high, float & low)
 {
-	int vecsize;
+	int vecsize = vector.size();
 	float start;
-
-	vecsize = vector.size();
 
 	start = vector[0]->get_temperature();
 	if (vector[1]->get_temperature() < start)
@@ -501,6 +501,38 @@ int Rawdata::doorOpen(Rawdata * &vecElement, bool inOut)
 {
 	int i = 1000;
 	return i;
+}
+
+//---------------------------------------------
+// :: Letar efter meterologisk höst eller vinter
+//---------------------------------------------
+
+// Letar efter meteorologisk höst och vinter
+void Rawdata::SearchSeason(std::vector <Rawdata *> &rawvector, float seasonTempLimit)
+{
+	int vecsize = rawvector.size();
+	int foundDate = 0;
+
+	for (int i = 0; i < vecsize - 5; i++)
+	{
+		if (rawvector[i]->analyzedOutside.get_aveTemperature() < seasonTempLimit &&
+			rawvector[i + 1]->analyzedOutside.get_aveTemperature() < seasonTempLimit &&
+			rawvector[i + 2]->analyzedOutside.get_aveTemperature() < seasonTempLimit &&
+			rawvector[i + 3]->analyzedOutside.get_aveTemperature() < seasonTempLimit &&
+			rawvector[i + 4]->analyzedOutside.get_aveTemperature() < seasonTempLimit)
+		{
+			foundDate = rawvector[i]->get_date();
+			i = vecsize;
+		}
+	}
+	if (foundDate != 0)
+	{
+		std::cout << foundDate << "\n";
+	}
+	else
+	{
+		PRINT("Winter is coming...");
+	}
 }
 
 Rawdata::~Rawdata()

@@ -20,6 +20,8 @@ public:
 	void set_aveTemperature(float temp) { aveTemperature = temp; }
 	void set_aveHumidity(int humid) { aveHumidity = humid; }
 
+	float get_aveTemperature() { return this->aveTemperature; }
+
 	// Converting back to time
 	// Seconds / 3600 % 60 (int) = hours
 	// Seconds / 60 % 60 (int) = minutes

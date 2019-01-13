@@ -15,6 +15,7 @@ private:
 public:
 	Program();
 
+	void loadProcessData();
 	void mainmenu();
 	void insideOptions();
 	void outsideOptions();

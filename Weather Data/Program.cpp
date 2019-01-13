@@ -4,16 +4,19 @@
 
 Program::Program()
 {
-
 }
 
-void Program::mainmenu()
+void Program::loadProcessData()
 {
 	std::cout << " Loading in raw data" << std::endl;
 	access.fileInput(rawData);
 	std::cout << " Analyzing data" << std::endl;
 	access.convertData(rawData);
+	mainmenu();
+}
 
+void Program::mainmenu()
+{
 	bool stay = true;
 	std::cout << " -Weather Analyzer-" << std::endl;
 	std::cout << " [1] Search for a date" << std::endl;
@@ -35,6 +38,7 @@ void Program::mainmenu()
 			break;
 		case '3':
 			//stay = false;
+			outsideOptions();
 			break;
 		case '4':
 			//stay = false;
@@ -139,15 +143,19 @@ void Program::searchSeason()
 		{
 		case '1':
 			//stay = false;
+			PRINT("We haven't even had spring yet...");
 			break;
 		case '2':
 			//stay = false;
+			PRINT("We haven't even had winter nor spring yet...");
 			break;
 		case '3':
 			//stay = false;
+			access.SearchSeason(rawData, 10);
 			break;
 		case '4':
 			//stay = false;
+			access.SearchSeason(rawData, 0);
 			break;
 		case '5':
 			stay = false;
