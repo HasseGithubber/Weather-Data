@@ -17,6 +17,10 @@ public:
 	{
 		time = hour * 3600 + minutes * 60 + seconds;
 	};
+	// Converting back to time
+	// Seconds / 3600 % 60 (int) = hours
+	// Seconds / 60 % 60 (int) = minutes
+	// Seconds % 60 (int) = seconds
 
 	int get_time() { return this->time; }
 	float get_temperature() { return this->temperature; }

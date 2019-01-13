@@ -8,7 +8,7 @@ private:
 	std::vector <Rawdata *> rawData;
 
 	std::string answer;
-	bool inOut;
+	//bool inOut;
 
 	Rawdata access;
 
@@ -16,6 +16,9 @@ public:
 	Program();
 
 	void mainmenu();
+	void insideOptions();
+	void outsideOptions();
+	void searchSeason();
 
 	~Program();
 };

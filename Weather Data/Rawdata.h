@@ -26,13 +26,20 @@ public:
 
 	long int get_date() { return this->date; }
 
+	// Data hantering
 	void fileInput(std::vector <Rawdata *> &);
-
 	void convertData(std::vector <Rawdata *> &);
 
+	// Data kalkylering
 	void averageTemperature(Rawdata * &, float &, bool);
 	void averageHumidity(Rawdata * &, int &, bool);
-	long int moldRisk(Rawdata * &, bool);
+	
+	void moldRisk(std::vector <Rawday *> &, int &, double &, double &);
+	//long int oldmoldRisk(Rawdata * &, bool);
+
+	//testest
+	float temperatureDifferenceSep(Rawdata * &, bool);
+
 	void findHighLowtemp(std::vector <Rawday *> &, float &, float &);
 	float temperatureDiffInOut(Rawdata * &);
 	int doorOpen(Rawdata * &, bool);

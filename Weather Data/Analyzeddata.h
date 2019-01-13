@@ -3,20 +3,27 @@ class Analyzeddata
 {
 private:
 
-	long int moldrisk_time, 
+	int moldrisk_time,
 		doorOpen_time;
 	float aveTemperature,
+		aveMoldIndex,
+		aveMoldIndex_time,
 		temperatureDiff;
 	int aveHumidity;
 
 public:
 
 	Analyzeddata();
-	Analyzeddata(float aveTemperature, int aveHumidity, long int moldrisk_time, float temperatureDiff, long int doorOpen_time)
-		: aveTemperature(aveTemperature), aveHumidity(aveHumidity), moldrisk_time(moldrisk_time), temperatureDiff(temperatureDiff), doorOpen_time(doorOpen_time) {};
+	Analyzeddata(float aveTemperature, int aveHumidity, float avemoldIndex, int moldrisk_time, float avemoldindex_time, float temperatureDiff, int doorOpen_time)
+		: aveTemperature(aveTemperature), aveHumidity(aveHumidity), aveMoldIndex(avemoldIndex), moldrisk_time(moldrisk_time), aveMoldIndex_time(avemoldindex_time), temperatureDiff(temperatureDiff), doorOpen_time(doorOpen_time) {};
 
 	void set_aveTemperature(float temp) { aveTemperature = temp; }
 	void set_aveHumidity(int humid) { aveHumidity = humid; }
+
+	// Converting back to time
+	// Seconds / 3600 % 60 (int) = hours
+	// Seconds / 60 % 60 (int) = minutes
+	// Seconds % 60 (int) = seconds
 
 	~Analyzeddata();
 };
