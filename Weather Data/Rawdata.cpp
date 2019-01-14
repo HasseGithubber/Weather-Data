@@ -159,7 +159,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 		aveMold_Index(rawvector[i]->dataInside, aveMoldIndex);
 		moldRisk_time(rawvector[i]->dataInside, moldRiskTime, aveMoldIndexTime);
 
-		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], true));
+		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, true));
 
 		averageTemperature(rawvector[i], aveTemperature, false);
 		averageHumidity(rawvector[i], aveHumidity, false);

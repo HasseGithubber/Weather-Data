@@ -51,7 +51,7 @@ public:
 
 	void findHighLowtemp(std::vector <Rawday *> &, float &, float &);
 	float temperatureDiffInOut(Rawdata * &);
-	int doorOpen(Rawdata * &, bool);
+	int doorOpen(std::vector <Rawdata *> &, bool);
 
 	// Sökning
 	void SearchSeason(std::vector <Rawdata *> &, float);
