@@ -1,13 +1,20 @@
 #pragma once
 #include "Rawday.h"
 #include "Analyzeddata.h"
+#include "tempData.h"
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 class Rawdata
 {
 private:
+
+	enum valueType
+	{
+		e_aveTemperature, e_aveHumidity, e_aveMoldIndex, e_temperatureDiff, e_doorOpen
+	};
 
 	int date;
 	float temperatureDiff;
@@ -24,6 +31,7 @@ public:
 	Rawdata() {};
 	Rawdata(std::string, std::string, std::string, std::string, std::string, std::string, std::string);
 
+	// Getter
 	long int get_date() { return this->date; }
 
 	// Data hantering
@@ -34,7 +42,8 @@ public:
 	void averageTemperature(Rawdata * &, float &, bool);
 	void averageHumidity(Rawdata * &, int &, bool);
 	
-	void moldRisk(std::vector <Rawday *> &, int &, double &, double &);
+	void aveMold_Index(std::vector <Rawday *> &, double &);
+	void moldRisk_time(std::vector <Rawday *> &, int &, double &);
 	//long int oldmoldRisk(Rawdata * &, bool);
 
 	//testest
@@ -44,7 +53,16 @@ public:
 	float temperatureDiffInOut(Rawdata * &);
 	int doorOpen(Rawdata * &, bool);
 
+	// Sökning
 	void SearchSeason(std::vector <Rawdata *> &, float);
 
+	// Sortering
+	//bool operator()
+
+	void sortData(std::vector <tempData> &, std::vector <Rawdata *> &, int, bool);
+	void sortData_choice(std::vector <tempData> &, Rawdata * &, Analyzeddata &, int &);
+	void printVectorTop(std::vector <tempData> &, std::string, bool);
+
+	// Dekonstruktor
 	~Rawdata();
 };

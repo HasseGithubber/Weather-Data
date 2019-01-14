@@ -149,34 +149,27 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 
 	for (int i = 0; i < vecsize; i++)
 	{
-		// testest - kör bara inne separat
+		// testest - kör bara inne separat --- Måste ändras till att sätta nedre funktionen
 		rawvector[i]->temperatureDiff = temperatureDifferenceSep(rawvector[i], true);
 
 		averageTemperature(rawvector[i], aveTemperature, true);
 		averageHumidity(rawvector[i], aveHumidity, true);
 
 		//LOG("*_*_*_*_*_*INNE*_*_*_*_*_*_*");
-		moldRisk(rawvector[i]->dataInside, moldRiskTime, aveMoldIndexTime, aveMoldIndex);
+		aveMold_Index(rawvector[i]->dataInside, aveMoldIndex);
+		moldRisk_time(rawvector[i]->dataInside, moldRiskTime, aveMoldIndexTime);
 
 		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], true));
-
-		//moldRiskTime = 0;
-		//aveMoldIndexTime = 0;
-		//aveMoldIndex = 0;
 
 		averageTemperature(rawvector[i], aveTemperature, false);
 		averageHumidity(rawvector[i], aveHumidity, false);
 
 		//LOG("------------------UITE------------------");
 		//LOG(rawvector[i]->get_date());
-
-		moldRisk(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime, aveMoldIndex);
+		aveMold_Index(rawvector[i]->dataOutside, aveMoldIndex);
+		moldRisk_time(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime);
 
 		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], false));
-		
-		//moldRiskTime = 0;
-		//aveMoldIndexTime = 0;
-		//aveMoldIndex = 0;
 	}
 }
 
@@ -256,10 +249,29 @@ void Rawdata::averageHumidity(Rawdata * &vecElement, int &aveHumid, bool inOut)
 //}
 
 //----------------------------------------------------------------------------------------------------------
-// :: Sammanlagda tiden för mögelrisk och dess medel-mögelindex under en dag + medelmögelindex för hela dagen
+// :: Sammanlagda tiden för mögelrisk och dess medel-mögelindex under en dag  och medel mögelindex för hela dagen
 //----------------------------------------------------------------------------------------------------------
 
-void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double &aveMoldIndexTime, double &aveMoldIndex)
+// Räknar ut medel mögelindex för hela dagen
+void Rawdata::aveMold_Index(std::vector <Rawday *> &vector, double &aveMoldIndex)
+{
+	int vecsize = vector.size();
+	float temperature;
+	double humidMoldThreshold;
+
+	aveMoldIndex = 0;
+
+	for (int i = 0; i < vecsize; i++)
+	{
+		temperature = vector[i]->get_temperature();
+		humidMoldThreshold = -0.0015 * pow(temperature, 3) + 0.1193 * pow(temperature, 2) - 2.9878 * temperature + 102.96;
+		aveMoldIndex = aveMoldIndex + (vector[i]->get_humidity() - humidMoldThreshold);
+	}
+	aveMoldIndex = aveMoldIndex / vecsize;
+}
+
+// Räknar ut hur länge det 'r risk för mögel under en dag och dess medel mögel index
+void Rawdata::moldRisk_time(std::vector <Rawday *> &vector, int &moldRiskTime, double &aveMoldIndexTime)
 {
 	int vecsize = vector.size(), startTime, stopTime, n = 0;
 	float temperature;
@@ -268,14 +280,11 @@ void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double
 
 	moldRiskTime = 0;
 	aveMoldIndexTime = 0;
-	aveMoldIndex = 0;
 
 	for (int i = 0; i < vecsize - 1; i++)
 	{
 		temperature = vector[i]->get_temperature();
 		humidMoldThreshold = -0.0015 * pow(temperature, 3) + 0.1193 * pow(temperature, 2) - 2.9878 * temperature + 102.96;
-		aveMoldIndex = aveMoldIndex + (vector[i]->get_humidity() - humidMoldThreshold);
-
 		if (vector[i]->get_humidity() > humidMoldThreshold)
 		{
 			aveMoldIndexTime = aveMoldIndexTime + (vector[i]->get_humidity() - humidMoldThreshold);
@@ -316,7 +325,6 @@ void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double
 	{
 		aveMoldIndexTime = aveMoldIndexTime / n;
 	}
-	aveMoldIndex = aveMoldIndex / vecsize;
 }
 
 // Gammal mögel index kod :: Räknar ut hur länge det är mögelrisk i tid och mögelindex för riskperioden på en dag
@@ -398,6 +406,7 @@ void Rawdata::moldRisk(std::vector <Rawday *> &vector, int &moldRiskTime, double
 //-----------------------------------------------------------------------------
 // Äldre kod :: Största temperatur skillnaden för ute och inne vardera på en dag
 //-----------------------------------------------------------------------------
+
 // Räknar ut största temperatur skillnaden på inne och ute temperaturen på en dag
 
 float Rawdata::temperatureDifferenceSep(Rawdata * &vecElement, bool inOut)
@@ -486,7 +495,9 @@ float Rawdata::temperatureDiffInOut(Rawdata * &vecElement)
 	findHighLowtemp(vecElement->dataOutside, highOut, lowOut);
 
 	if (highIn > highOut)
-	{ high = highIn; low = lowOut; }
+	{
+		high = highIn; low = lowOut;
+	}
 	else { high = highOut; low = lowIn; }
 
 	return high - low;
@@ -532,6 +543,100 @@ void Rawdata::SearchSeason(std::vector <Rawdata *> &rawvector, float seasonTempL
 	else
 	{
 		PRINT("Winter is coming...");
+	}
+}
+
+//-----------------------------------------
+// :: Sortera analyserad data av önskad sort
+//-----------------------------------------
+
+//bool operator()
+
+void Rawdata::sortData(std::vector <tempData> &sortVector, std::vector <Rawdata *> &rawVector, int choice, bool inOut)
+{
+	std::string typeLabel;
+	int vecsize;
+	vecsize = rawVector.size();
+	for (int i = 0; i < vecsize; i++)
+	{
+		if (inOut)
+		{
+			sortData_choice(sortVector, rawVector[i], rawVector[i]->analyzedInside, choice);
+		}
+		else
+		{
+			sortData_choice(sortVector, rawVector[i], rawVector[i]->analyzedOutside, choice);
+		}
+
+	}
+	switch (choice)
+	{
+	case e_aveTemperature:
+		typeLabel = " Average temperature : ";
+		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		printVectorTop(sortVector, typeLabel, false);
+	case e_aveHumidity:
+		typeLabel = " Average humidity : ";
+		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		printVectorTop(sortVector, typeLabel, false);
+	case e_aveMoldIndex:
+		typeLabel = " Average mold index : ";
+		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		printVectorTop(sortVector, typeLabel, false);
+	case e_temperatureDiff:
+		typeLabel = " Temperature difference in-out : ";
+		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		printVectorTop(sortVector, typeLabel, false);
+	case e_doorOpen:
+		typeLabel = " How long the door was open : ";
+		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		printVectorTop(sortVector, typeLabel, false);
+	}
+}
+
+void Rawdata::sortData_choice(std::vector <tempData> &sortVector, Rawdata * &vecElement, Analyzeddata &anaObj, int &choice)
+{
+	tempData obj;
+	switch (choice)
+	{
+	case e_aveTemperature:
+		obj = tempData(vecElement->get_date(), anaObj.get_aveTemperature());
+		sortVector.push_back(obj);
+		break;
+	case e_aveHumidity:
+		obj = tempData(vecElement->get_date(), anaObj.get_aveHumidity());
+		sortVector.push_back(obj);
+		break;
+	case e_aveMoldIndex:
+		obj = tempData(vecElement->get_date(), anaObj.get_aveMoldIndex());
+		sortVector.push_back(obj);
+		break;
+	case e_temperatureDiff:
+		obj = tempData(vecElement->get_date(), anaObj.get_aveTemperatureDiff());
+		sortVector.push_back(obj);
+		break;
+	case e_doorOpen:
+		obj = tempData(vecElement->get_date(), anaObj.get_doorOpen());
+		sortVector.push_back(obj);
+		break;
+	}
+}
+
+void Rawdata::printVectorTop(std::vector <tempData> &sortVector, std::string labelType, bool intType)
+{
+	int vecsize = sortVector.size();
+	for (int i = 0; i < vecsize; i++)
+	{
+		if (intType)
+		{
+			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << labelType << sortVector[i].get_intValue() << "\n";
+		}
+		else
+		{
+			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << labelType << sortVector[i].get_floatValue() << "\n";
+		}
 	}
 }
 

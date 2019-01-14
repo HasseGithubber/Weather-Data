@@ -31,6 +31,7 @@ void Program::mainmenu()
 		switch (answer[0])
 		{
 		case '1':
+
 			//stay = false;
 			break;
 		case '2':

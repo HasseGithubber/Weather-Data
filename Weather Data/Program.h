@@ -1,14 +1,15 @@
 #pragma once
 #include "Rawdata.h"
+#include "tempData.h"
 
 class Program
 {
 private:
 
+	std::vector <tempData> sortedVector;
 	std::vector <Rawdata *> rawData;
 
 	std::string answer;
-	//bool inOut;
 
 	Rawdata access;
 

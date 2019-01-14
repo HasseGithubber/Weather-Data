@@ -156,6 +156,7 @@
     <ClInclude Include="Program.h" />
     <ClInclude Include="Rawdata.h" />
     <ClInclude Include="Rawday.h" />
+    <ClInclude Include="tempData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Analyzeddata.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Rawdata.cpp" />
     <ClCompile Include="Rawday.cpp" />
+    <ClCompile Include="tempData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="tempdata2.csv" />

@@ -30,6 +30,9 @@
     <ClInclude Include="Analyzeddata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tempData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Analyzeddata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tempData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
