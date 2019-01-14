@@ -158,7 +158,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 		//LOG("*_*_*_*_*_*INNE*_*_*_*_*_*_*");
 		moldRisk(rawvector[i]->dataInside, moldRiskTime, aveMoldIndexTime, aveMoldIndex);
 
-		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], true));
+		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, true));
 
 		//moldRiskTime = 0;
 		//aveMoldIndexTime = 0;
@@ -172,7 +172,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 
 		moldRisk(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime, aveMoldIndex);
 
-		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], false));
+		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, false));
 		
 		//moldRiskTime = 0;
 		//aveMoldIndexTime = 0;
@@ -497,12 +497,59 @@ float Rawdata::temperatureDiffInOut(Rawdata * &vecElement)
 //----------------------------------------------------------
 
 // Räknar ut hur länge dörren är öppen på en dag
-int Rawdata::doorOpen(Rawdata * &vecElement, bool inOut)
+int Rawdata::doorOpen(std::vector <Rawdata *> &vector, int &doorOpenTime, bool inOut)
 {
-	int i = 1000;
-	return i;
-}
+	int vecsize = vector.size();
 
+	for (int i = 0; i < vecsize - 1; i++)
+	{
+		temperature = vector[i]->get_temperature();
+		humidMoldThreshold = -0.0015 * pow(temperature, 3) + 0.1193 * pow(temperature, 2) - 2.9878 * temperature + 102.96;
+		aveMoldIndex = aveMoldIndex + (vector[i]->get_humidity() - humidMoldThreshold);
+
+		if (vector[i]->get_humidity() > humidMoldThreshold)
+		{
+			aveMoldIndexTime = aveMoldIndexTime + (vector[i]->get_humidity() - humidMoldThreshold);
+			//LOG("avemoldindex per tid");
+			//LOG(aveMoldIndexTime);
+			n++;
+			//LOG(n);
+			if (getstarttime)
+			{
+				startTime = vector[i]->get_time();
+				getstarttime = false;
+				//LOG("start tid");
+				//LOG(startTime);
+			}
+			if (i < vecsize - 2)
+			{
+				temperature = vector[i + 1]->get_temperature();
+				humidMoldThreshold = -0.0015 * pow(temperature, 3) + 0.1193 * pow(temperature, 2) - 2.9878 * temperature + 102.96;
+				if (vector[i + 1]->get_humidity() < humidMoldThreshold)
+				{
+					stopTime = vector[i + 1]->get_time();
+					//LOG("onmgoing stop tid");
+					//LOG(stopTime);
+					moldRiskTime = moldRiskTime + (stopTime - startTime);
+					getstarttime = true;
+				}
+			}
+			else
+			{
+				stopTime = vector[i + 1]->get_time();
+				//LOG("slutliga stop tid");
+				//LOG(stopTime);
+				moldRiskTime = moldRiskTime + (stopTime - startTime);
+			}
+		}
+	}
+	if (n != 0)
+	{
+		aveMoldIndexTime = aveMoldIndexTime / n;
+	}
+	aveMoldIndex = aveMoldIndex / vecsize;
+
+}
 //---------------------------------------------
 // :: Letar efter meterologisk höst eller vinter
 //---------------------------------------------
