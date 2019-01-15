@@ -53,12 +53,17 @@ public:
 	float temperatureDiffInOut(Rawdata * &);
 	int doorOpen(std::vector <Rawdata *> &, bool);
 
+	// Binär sökning efter datum
+	int binarySearch(std::vector <Rawdata *> &, int &, int &, int &);
+
 	// Sökning
 	void SearchSeason(std::vector <Rawdata *> &, float);
 
-	// Sortering
-	//bool operator()
+	// Comparers
+	static bool compareFloat(const tempData &, const tempData &);
+	static bool compareInt(const tempData &, const tempData &);
 
+	// Sortering
 	void sortData(std::vector <tempData> &, std::vector <Rawdata *> &, int, bool);
 	void sortData_choice(std::vector <tempData> &, Rawdata * &, Analyzeddata &, int &);
 	void printVectorTop(std::vector <tempData> &, std::string, bool);

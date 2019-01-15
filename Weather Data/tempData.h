@@ -12,9 +12,8 @@ public:
 	tempData(int date, int value) : date(date), i_valuetoSort(value) {};
 
 	int get_date() { return this->date; };
-	int get_intValue() { return this->i_valuetoSort; };
-	float get_floatValue() { return this->f_valuetoSort; };
+	int get_intValue() const { return this->i_valuetoSort; };
+	float get_floatValue() const { return this->f_valuetoSort; };
 
 	~tempData();
 };
-

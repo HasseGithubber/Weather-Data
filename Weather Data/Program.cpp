@@ -31,7 +31,8 @@ void Program::mainmenu()
 		switch (answer[0])
 		{
 		case '1':
-
+			access.sortData(sortedVector, rawData, 0, true);
+			access.sortData(sortedVector, rawData, 2, true);
 			//stay = false;
 			break;
 		case '2':
@@ -71,6 +72,7 @@ void Program::insideOptions()
 		switch (answer[0])
 		{
 		case '1':
+			access.sortData(sortedVector, rawData, 1, true);
 			//stay = false;
 			break;
 		case '2':
@@ -93,7 +95,7 @@ void Program::insideOptions()
 void Program::outsideOptions()
 {
 	bool stay = true;
-	std::cout << " -Inside information-" << std::endl;
+	std::cout << " -Outside information-" << std::endl;
 	std::cout << " [1] Show the top 5 average temperatures - high to low" << std::endl;
 	std::cout << " [2] Show the top 5 average humidity levels - dry to humid" << std::endl;
 	std::cout << " [3] Show the top 5 mold risk levels - high to low" << std::endl;

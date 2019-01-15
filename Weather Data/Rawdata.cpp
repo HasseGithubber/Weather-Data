@@ -169,7 +169,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 		aveMold_Index(rawvector[i]->dataOutside, aveMoldIndex);
 		moldRisk_time(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime);
 
-		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector[i], false));
+		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, false));
 	}
 }
 
@@ -508,10 +508,35 @@ float Rawdata::temperatureDiffInOut(Rawdata * &vecElement)
 //----------------------------------------------------------
 
 // Räknar ut hur länge dörren är öppen på en dag
-int Rawdata::doorOpen(Rawdata * &vecElement, bool inOut)
+int Rawdata::doorOpen(std::vector <Rawdata *> &vecElement, bool inOut)
 {
 	int i = 1000;
 	return i;
+}
+
+//----------------
+// :: Binär sökning
+//----------------
+
+int Rawdata::binarySearch(std::vector <Rawdata *> &vector, int &low, int &high, int &value)
+{
+	int i_low;
+	int i_high;
+	if (vector[low / 2]->get_date() + vector[high / 2]->get_date() == value)
+	{
+		return low / 2 + high / 2;
+	}
+	if (vector[low / 2]->get_date() + vector[high / 2]->get_date() < value)
+	{
+		i_low = low / 2 + high / 2;
+		return binarySearch(vector, i_low, high, value);
+	}
+	else
+	{
+		i_high = low / 2 + high / 2;
+		return binarySearch(vector, low, i_high, value);
+	}
+	return 0;
 }
 
 //---------------------------------------------
@@ -550,7 +575,15 @@ void Rawdata::SearchSeason(std::vector <Rawdata *> &rawvector, float seasonTempL
 // :: Sortera analyserad data av önskad sort
 //-----------------------------------------
 
-//bool operator()
+// Funktioner för stable sort, väljer vad jag ska den ska sortera och i vilken ordning
+bool Rawdata::compareFloat(const tempData &a, const tempData &b)
+{
+	return a.get_floatValue() > b.get_floatValue();
+}
+bool Rawdata::compareInt(const tempData &a, const tempData &b)
+{
+	return a.get_intValue() > b.get_intValue();
+}
 
 void Rawdata::sortData(std::vector <tempData> &sortVector, std::vector <Rawdata *> &rawVector, int choice, bool inOut)
 {
@@ -567,30 +600,40 @@ void Rawdata::sortData(std::vector <tempData> &sortVector, std::vector <Rawdata 
 		{
 			sortData_choice(sortVector, rawVector[i], rawVector[i]->analyzedOutside, choice);
 		}
-
 	}
 	switch (choice)
 	{
 	case e_aveTemperature:
 		typeLabel = " Average temperature : ";
-		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		std::stable_sort(sortVector.begin(), sortVector.end(), compareFloat);
 		printVectorTop(sortVector, typeLabel, false);
+		break;
 	case e_aveHumidity:
 		typeLabel = " Average humidity : ";
-		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		std::stable_sort(sortVector.begin(), sortVector.end(), compareInt);
 		printVectorTop(sortVector, typeLabel, false);
+		break;
 	case e_aveMoldIndex:
 		typeLabel = " Average mold index : ";
-		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		std::stable_sort(sortVector.begin(), sortVector.end(), compareFloat);
 		printVectorTop(sortVector, typeLabel, false);
+		break;
 	case e_temperatureDiff:
 		typeLabel = " Temperature difference in-out : ";
-		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		std::stable_sort(sortVector.begin(), sortVector.end(), compareFloat);
 		printVectorTop(sortVector, typeLabel, false);
+		break;
 	case e_doorOpen:
 		typeLabel = " How long the door was open : ";
-		std::stable_sort(sortVector.begin(), sortVector.end(), );
+		std::stable_sort(sortVector.begin(), sortVector.end(), compareInt);
 		printVectorTop(sortVector, typeLabel, false);
+		break;
+	}
+
+	vecsize = sortVector.size();
+	for (int i = 0; i < vecsize; i++)
+	{
+		sortVector.pop_back();
 	}
 }
 
@@ -625,7 +668,22 @@ void Rawdata::sortData_choice(std::vector <tempData> &sortVector, Rawdata * &vec
 void Rawdata::printVectorTop(std::vector <tempData> &sortVector, std::string labelType, bool intType)
 {
 	int vecsize = sortVector.size();
-	for (int i = 0; i < vecsize; i++)
+	std::cout << "----Top 5 Highest " << labelType << "----" << "\n";
+	for (int i = 0; i < 5; i++)
+	{
+		if (intType)
+		{
+			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << labelType << sortVector[i].get_intValue() << "\n";
+		}
+		else
+		{
+			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << labelType << sortVector[i].get_floatValue() << "\n";
+		}
+	}
+	std::cout << "----Top 5 lowest " << labelType << "----" << "\n";
+	for (int i = vecsize - 1; i > vecsize - 6; i--)
 	{
 		if (intType)
 		{
