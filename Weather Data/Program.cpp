@@ -19,7 +19,6 @@ void Program::mainmenu()
 {
 	bool stay = true;
 	std::cout << " -Weather Analyzer-" << std::endl;
-	std::cout << " [1] Search for a date" << std::endl;
 	std::cout << " [2] Inspect inside data" << std::endl;
 	std::cout << " [3] Inspect outside data" << std::endl;
 	std::cout << " [4] Show the top 5 temperature differences - high to low" << std::endl;
@@ -31,11 +30,11 @@ void Program::mainmenu()
 		switch (answer[0])
 		{
 		case '1':
-			access.sortData(sortedVector, rawData, 0, true);
-			access.sortData(sortedVector, rawData, 2, true);
+
 			//stay = false;
 			break;
 		case '2':
+			access.sortData(sortedVector, rawData, 0, true);
 			//stay = false;
 			break;
 		case '3':
@@ -60,30 +59,49 @@ void Program::mainmenu()
 
 void Program::insideOptions()
 {
+	std::string date;
+	int i;
 	bool stay = true;
 	std::cout << " -Inside information-" << std::endl;
-	std::cout << " [1] Show the top 5 average temperatures - high to low" << std::endl;
-	std::cout << " [2] Show the top 5 average humidity levels - dry to humid" << std::endl;
-	std::cout << " [3] Show the top 5 mold risk levels - high to low" << std::endl;
-	std::cout << " [4] Back to main menu" << std::endl;
+	std::cout << " [1] Search for a date" << std::endl;
+	std::cout << " [2] Show the top 5 average temperatures - high to low" << std::endl;
+	std::cout << " [3] Show the top 5 average humidity levels - dry to humid" << std::endl;
+	std::cout << " [4] Show the top 5 mold risk levels - high to low" << std::endl;
+	std::cout << " [5] Back to main menu" << std::endl;
 	do
 	{
 		std::cin >> answer;
 		switch (answer[0])
 		{
 		case '1':
-			access.sortData(sortedVector, rawData, 1, true);
+			do
+			{
+				std::cout << " Enter a date \"e.g 2016-10-04\" : ";
+				std::cin >> answer;
+				i = answer.size();
+				if (i != 10)
+				{
+					std::cout << "Answer needs to look like the example" << "\n";
+				}
+			} while (i != 10);
+			access.searchDate(rawData, answer, true);
 			//stay = false;
 			break;
 		case '2':
+			access.sortData(sortedVector, rawData, 0, true);
 			//stay = false;
 			break;
 		case '3':
+			access.sortData(sortedVector, rawData, 1, true);
 			//stay = false;
 			break;
 		case '4':
-			stay = false;
+			access.sortData(sortedVector, rawData, 2, true);
+			//stay = false;
+			break;
+		case '5':
 			mainmenu();
+			stay = false;
 			break;
 		default:
 			std::cout << "Wrong input" << std::endl;
@@ -94,34 +112,54 @@ void Program::insideOptions()
 
 void Program::outsideOptions()
 {
+	std::string date;
+	int i;
 	bool stay = true;
 	std::cout << " -Outside information-" << std::endl;
-	std::cout << " [1] Show the top 5 average temperatures - high to low" << std::endl;
-	std::cout << " [2] Show the top 5 average humidity levels - dry to humid" << std::endl;
-	std::cout << " [3] Show the top 5 mold risk levels - high to low" << std::endl;
-	std::cout << " [4] Search for the beginning of a season" << std::endl;
-	std::cout << " [5] Back to main menu" << std::endl;
+	std::cout << " [1] Search for a date" << std::endl;
+	std::cout << " [2] Show the top 5 average temperatures - high to low" << std::endl;
+	std::cout << " [3] Show the top 5 average humidity levels - dry to humid" << std::endl;
+	std::cout << " [4] Show the top 5 mold risk levels - high to low" << std::endl;
+	std::cout << " [5] Search for the beginning of a season" << std::endl;
+	std::cout << " [6] Back to main menu" << std::endl;
 	do
 	{
 		std::cin >> answer;
 		switch (answer[0])
 		{
 		case '1':
+			do
+			{
+				std::cout << " Enter a date \"e.g 2016-10-04\" : ";
+				std::cin >> answer;
+				i = answer.size();
+				if (i != 10)
+				{
+					std::cout << "Answer needs to look like the example" << "\n";
+				}
+			} while (i != 10);
+			access.searchDate(rawData, answer, false);
 			//stay = false;
 			break;
 		case '2':
+			access.sortData(sortedVector, rawData, 0, false);
 			//stay = false;
 			break;
 		case '3':
+			access.sortData(sortedVector, rawData, 1, false);
 			//stay = false;
 			break;
 		case '4':
-			stay = false;
-			searchSeason();
+			access.sortData(sortedVector, rawData, 2, false);
+			//stay = false;
 			break;
 		case '5':
-			stay = false;
+			searchSeason();
+			//stay = false;
+			break;
+		case '6':
 			mainmenu();
+			stay = false;
 			break;
 		default:
 			std::cout << "Wrong input" << std::endl;
@@ -161,8 +199,8 @@ void Program::searchSeason()
 			access.SearchSeason(rawData, 0);
 			break;
 		case '5':
-			stay = false;
 			mainmenu();
+			stay = false;
 			break;
 		default:
 			std::cout << "Wrong input" << std::endl;

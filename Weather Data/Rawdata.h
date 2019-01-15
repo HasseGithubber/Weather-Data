@@ -16,7 +16,8 @@ private:
 		e_aveTemperature, e_aveHumidity, e_aveMoldIndex, e_temperatureDiff, e_doorOpen
 	};
 
-	int date;
+	std::string date;
+	int i_date;
 	float temperatureDiff;
 
 	std::vector <Rawday *> dataInside;
@@ -32,7 +33,9 @@ public:
 	Rawdata(std::string, std::string, std::string, std::string, std::string, std::string, std::string);
 
 	// Getter
-	long int get_date() { return this->date; }
+	std::string get_date() { return this->date; }
+	int get_i_date() { return this->i_date; }
+	float get_temperatureDiff() { return this->temperatureDiff; }
 
 	// Data hantering
 	void fileInput(std::vector <Rawdata *> &);
@@ -44,7 +47,6 @@ public:
 	
 	void aveMold_Index(std::vector <Rawday *> &, double &);
 	void moldRisk_time(std::vector <Rawday *> &, int &, double &);
-	//long int oldmoldRisk(Rawdata * &, bool);
 
 	//testest
 	float temperatureDifferenceSep(Rawdata * &, bool);
@@ -54,7 +56,8 @@ public:
 	int doorOpen(std::vector <Rawdata *> &, bool);
 
 	// Binär sökning efter datum
-	int binarySearch(std::vector <Rawdata *> &, int &, int &, int &);
+	int binarySearch(std::vector <Rawdata *> &, int, int, std::string);
+	void searchDate(std::vector <Rawdata *> &, std::string, bool);
 
 	// Sökning
 	void SearchSeason(std::vector <Rawdata *> &, float);
