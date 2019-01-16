@@ -7,6 +7,7 @@ class Program
 private:
 
 	std::vector <tempData> sortedVector;
+	std::vector <tempData> balconyDoorVector;
 	std::vector <Rawdata *> rawData;
 
 	std::string answer;

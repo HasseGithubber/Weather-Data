@@ -410,11 +410,32 @@ float Rawdata::temperatureDiffInOut(Rawdata * &vecElement)
 // WIP :: Hur länge balkongdörren är öppen på en dag
 //----------------------------------------------------------
 
-// Räknar ut hur länge dörren är öppen på en dag
-int Rawdata::doorOpen(std::vector <Rawdata *> &vecElement, bool inOut)
+void hourlyAverageTemp(std::vector <Rawday *> &insideVec, std::vector <Rawday *> &outsideVec)
 {
-	int i = 1000;
-	return i;
+	int vecsize = vector.size();
+
+	int hour_counter = 1;
+	for (int i = 0; i < vecsize; i++)
+	{
+		if (vector[i]->get_time < hour_counter * 3600)
+		{
+			vector[i].get_temperature()
+		}
+	}
+	for(int i = 0)
+}
+
+// Algorithm that calculates how long the balcony door in the room has been open, in hours.
+int Rawdata::doorOpen(std::vector <tempData> &bDoorVector, std::vector <Rawdata *> &rawvector)
+{
+	float inside, outside, difference;
+
+	int vecsize = rawvector.size();
+
+	for (int i = 0; i < vecsize; i++)
+	{
+		rawvector[i].hourlyAverageTemp(rawvector[i]->dataInside, rawvector[i]->dataOutside);
+	}
 }
 
 //-------------------------
