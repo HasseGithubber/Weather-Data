@@ -19,35 +19,33 @@ void Program::mainmenu()
 {
 	bool stay = true;
 	std::cout << " -Weather Analyzer-" << std::endl;
-	std::cout << " [2] Inspect inside data" << std::endl;
-	std::cout << " [3] Inspect outside data" << std::endl;
-	std::cout << " [4] Show the top 5 temperature differences - high to low" << std::endl;
-	std::cout << " [5] How long the balcony door was open per day - high to low" << std::endl;
-	std::cout << " [6] Exit program" << std::endl;
+	std::cout << " [1] Inspect inside data" << std::endl;
+	std::cout << " [2] Inspect outside data" << std::endl;
+	std::cout << " [3] Show the top 5 temperature differences - high to low" << std::endl;
+	std::cout << " [4] How long the balcony door was open per day - high to low" << std::endl;
+	std::cout << " [5] Exit program" << std::endl;
 	do
 	{
 		std::cin >> answer;
 		switch (answer[0])
 		{
 		case '1':
-
+			insideOptions();
 			//stay = false;
 			break;
 		case '2':
-			access.sortData(sortedVector, rawData, 0, true);
+			outsideOptions();
 			//stay = false;
 			break;
 		case '3':
+			access.sortData(sortedVector, rawData, 3, true);
 			//stay = false;
-			outsideOptions();
 			break;
 		case '4':
+			access.sortData(sortedVector, rawData, 4, true);
 			//stay = false;
 			break;
 		case '5':
-			//stay = false;
-			break;
-		case '6':
 			stay = false;
 			break;
 		default:
@@ -100,7 +98,7 @@ void Program::insideOptions()
 			//stay = false;
 			break;
 		case '5':
-			mainmenu();
+			//mainmenu();
 			stay = false;
 			break;
 		default:

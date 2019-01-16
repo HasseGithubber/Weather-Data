@@ -49,7 +49,7 @@ public:
 	void moldRisk_time(std::vector <Rawday *> &, int &, double &);
 
 	//testest
-	float temperatureDifferenceSep(Rawdata * &, bool);
+	//float temperatureDifferenceSep(Rawdata * &, bool);
 
 	void findHighLowtemp(std::vector <Rawday *> &, float &, float &);
 	float temperatureDiffInOut(Rawdata * &);

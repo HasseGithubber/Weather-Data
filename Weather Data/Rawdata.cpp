@@ -28,7 +28,7 @@ Rawdata::Rawdata(std::string date, std::string timeH, std::string timeM, std::st
 }
 
 //-------------------------------------------------------
-// WIP, städas kanske :: Filhantering och data- insamling och analysering
+// :: Filhantering och data- insamling och analysering
 //-------------------------------------------------------
 
 // Reads data from file and stores it in a vector
@@ -155,7 +155,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 	for (unsigned int i = 0; i < vecsize; i++)
 	{
 		// testest - kör bara inne separat --- Måste ändras till att sätta nedre funktionen
-		rawvector[i]->temperatureDiff = temperatureDifferenceSep(rawvector[i], true);
+		//rawvector[i]->temperatureDiff = temperatureDifferenceSep(rawvector[i], true);
 
 		averageTemperature(rawvector[i], aveTemperature, true);
 		averageHumidity(rawvector[i], aveHumidity, true);
@@ -174,7 +174,7 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 		aveMold_Index(rawvector[i]->dataOutside, aveMoldIndex);
 		moldRisk_time(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime);
 
-		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, false));
+		rawvector[i]->analyzedOutside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, 0, 0);
 	}
 }
 
@@ -311,57 +311,55 @@ void Rawdata::moldRisk_time(std::vector <Rawday *> &vector, int &moldRiskTime, d
 //-----------------------------------------------------------------------------
 // Äldre kod :: Största temperatur skillnaden för ute och inne vardera på en dag
 //-----------------------------------------------------------------------------
-
 // Räknar ut största temperatur skillnaden på inne och ute temperaturen på en dag
-
-float Rawdata::temperatureDifferenceSep(Rawdata * &vecElement, bool inOut)
-{
-	unsigned int vecsize;
-	float start, high, low;
-
-	if (inOut) { vecsize = vecElement->dataInside.size(); }
-	else { vecsize = vecElement->dataOutside.size(); }
-
-	if (inOut)
-	{
-		start = vecElement->dataInside[0]->get_temperature();
-		if (vecElement->dataInside[1]->get_temperature() < start)
-		{
-			low = vecElement->dataInside[1]->get_temperature();
-			high = start;
-		}
-		else
-		{
-			high = vecElement->dataInside[1]->get_temperature();
-			low = start;
-		}
-		for (unsigned int i = 2; i < vecsize; i++)
-		{
-			if (vecElement->dataInside[i]->get_temperature() < low) { low = vecElement->dataInside[i]->get_temperature(); }
-			if (vecElement->dataInside[i]->get_temperature() > high) { high = vecElement->dataInside[i]->get_temperature(); }
-		}
-	}
-	else
-	{
-		start = vecElement->dataOutside[0]->get_temperature();
-		if (vecElement->dataOutside[1]->get_temperature() < start)
-		{
-			low = vecElement->dataOutside[1]->get_temperature();
-			high = start;
-		}
-		else
-		{
-			high = vecElement->dataOutside[1]->get_temperature();
-			low = start;
-		}
-		for (unsigned int i = 1; i < vecsize; i++)
-		{
-			if (vecElement->dataOutside[i]->get_temperature() < low) { low = vecElement->dataOutside[i]->get_temperature(); }
-			if (vecElement->dataOutside[i]->get_temperature() > high) { high = vecElement->dataOutside[i]->get_temperature(); }
-		}
-	}
-	return high - low;
-}
+//float Rawdata::temperatureDifferenceSep(Rawdata * &vecElement, bool inOut)
+//{
+//	unsigned int vecsize;
+//	float start, high, low;
+//
+//	if (inOut) { vecsize = vecElement->dataInside.size(); }
+//	else { vecsize = vecElement->dataOutside.size(); }
+//
+//	if (inOut)
+//	{
+//		start = vecElement->dataInside[0]->get_temperature();
+//		if (vecElement->dataInside[1]->get_temperature() < start)
+//		{
+//			low = vecElement->dataInside[1]->get_temperature();
+//			high = start;
+//		}
+//		else
+//		{
+//			high = vecElement->dataInside[1]->get_temperature();
+//			low = start;
+//		}
+//		for (unsigned int i = 2; i < vecsize; i++)
+//		{
+//			if (vecElement->dataInside[i]->get_temperature() < low) { low = vecElement->dataInside[i]->get_temperature(); }
+//			if (vecElement->dataInside[i]->get_temperature() > high) { high = vecElement->dataInside[i]->get_temperature(); }
+//		}
+//	}
+//	else
+//	{
+//		start = vecElement->dataOutside[0]->get_temperature();
+//		if (vecElement->dataOutside[1]->get_temperature() < start)
+//		{
+//			low = vecElement->dataOutside[1]->get_temperature();
+//			high = start;
+//		}
+//		else
+//		{
+//			high = vecElement->dataOutside[1]->get_temperature();
+//			low = start;
+//		}
+//		for (unsigned int i = 1; i < vecsize; i++)
+//		{
+//			if (vecElement->dataOutside[i]->get_temperature() < low) { low = vecElement->dataOutside[i]->get_temperature(); }
+//			if (vecElement->dataOutside[i]->get_temperature() > high) { high = vecElement->dataOutside[i]->get_temperature(); }
+//		}
+//	}
+//	return high - low;
+//}
 
 //---------------------------------------------------------------
 // :: Största temperatur skillnaden mellan ute och inne för en dag
@@ -419,9 +417,9 @@ int Rawdata::doorOpen(std::vector <Rawdata *> &vecElement, bool inOut)
 	return i;
 }
 
-//----------------
-// :: Binär sökning
-//----------------
+//-------------------------
+// :: Binär sökning på datum
+//-------------------------
 
 int Rawdata::binarySearch(std::vector <Rawdata *> &vector, int low, int high, std::string date)
 {
