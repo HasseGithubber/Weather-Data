@@ -6,7 +6,6 @@ tempData::tempData()
 {
 }
 
-
 tempData::~tempData()
 {
 }
