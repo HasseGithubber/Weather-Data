@@ -173,11 +173,7 @@
     <ClCompile Include="tempData.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="tempdata2.csv" />
     <None Include="tempdata4.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="tempdata2mindre.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
