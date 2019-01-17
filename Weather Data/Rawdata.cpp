@@ -144,10 +144,10 @@ void Rawdata::fileInput(std::vector <Rawdata *> &rawvector)
 }
 
 // Converts the raw data into analyzed data
-void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
+void Rawdata::convertData(std::vector <Rawdata *> &rawvector, std::vector <tempData *> &bDoorVector)
 {
 	float aveTemperature;
-	int aveHumidity, moldRiskTime;
+	int aveHumidity, moldRiskTime, doorOpen_hours;
 	double aveMoldIndexTime, aveMoldIndex;
 
 	unsigned int vecsize = rawvector.size();
@@ -159,18 +159,14 @@ void Rawdata::convertData(std::vector <Rawdata *> &rawvector)
 
 		averageTemperature(rawvector[i], aveTemperature, true);
 		averageHumidity(rawvector[i], aveHumidity, true);
-
-		//LOG("*_*_*_*_*_*INNE*_*_*_*_*_*_*");
 		aveMold_Index(rawvector[i]->dataInside, aveMoldIndex);
 		moldRisk_time(rawvector[i]->dataInside, moldRiskTime, aveMoldIndexTime);
+		doorOpen(bDoorVector, rawvector[i], doorOpen_hours); // doorOpen data stored only in the the analyzedInside object
 
-		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen(rawvector, true));
+		rawvector[i]->analyzedInside = Analyzeddata(aveTemperature, aveHumidity, aveMoldIndex, moldRiskTime, aveMoldIndexTime, temperatureDiffInOut(rawvector[i]), doorOpen_hours);
 
 		averageTemperature(rawvector[i], aveTemperature, false);
 		averageHumidity(rawvector[i], aveHumidity, false);
-
-		//LOG("------------------UITE------------------");
-		//LOG(rawvector[i]->get_date());
 		aveMold_Index(rawvector[i]->dataOutside, aveMoldIndex);
 		moldRisk_time(rawvector[i]->dataOutside, moldRiskTime, aveMoldIndexTime);
 
@@ -309,7 +305,7 @@ void Rawdata::moldRisk_time(std::vector <Rawday *> &vector, int &moldRiskTime, d
 }
 
 //-----------------------------------------------------------------------------
-// Äldre kod :: Största temperatur skillnaden för ute och inne vardera på en dag
+// Older code **only here for keep sake** :: Största temperatur skillnaden för ute och inne vardera på en dag
 //-----------------------------------------------------------------------------
 // Räknar ut största temperatur skillnaden på inne och ute temperaturen på en dag
 //float Rawdata::temperatureDifferenceSep(Rawdata * &vecElement, bool inOut)
@@ -365,6 +361,8 @@ void Rawdata::moldRisk_time(std::vector <Rawday *> &vector, int &moldRiskTime, d
 // :: Största temperatur skillnaden mellan ute och inne för en dag
 //---------------------------------------------------------------
 
+// **Reminder to myself** "abs(value - value)" gives you the absolute difference.
+
 // Går igenom vectorn och letar fram den högsta och lägsta temperaturen
 void Rawdata::findHighLowtemp(std::vector <Rawday *> &vector, float & high, float & low)
 {
@@ -410,31 +408,89 @@ float Rawdata::temperatureDiffInOut(Rawdata * &vecElement)
 // WIP :: Hur länge balkongdörren är öppen på en dag
 //----------------------------------------------------------
 
-void hourlyAverageTemp(std::vector <Rawday *> &insideVec, std::vector <Rawday *> &outsideVec)
+void Rawdata::hourlyAverageTemp(std::vector <tempData *> &bDoorVector, std::vector <Rawday *> &insideVec, std::vector <Rawday *> &outsideVec)
 {
-	int vecsize = vector.size();
+	int vecsizeIn = insideVec.size();
+	int vecsizeOut = outsideVec.size();
+	float insideTemp = 0, outsideTemp = 0, tempDifference = 0;
+	float insideHumid = 0, outsideHumid = 0, humidDifference = 0;
 
-	int hour_counter = 1;
-	for (int i = 0; i < vecsize; i++)
+	int hour_counter = 1, i = 0, j = 0, n = 0;
+	do
 	{
-		if (vector[i]->get_time < hour_counter * 3600)
+		if (i < vecsizeIn)
 		{
-			vector[i].get_temperature()
+			while (i < vecsizeIn && insideVec[i]->get_time() < hour_counter * 3600)
+			{
+				insideTemp = insideTemp + insideVec[i]->get_temperature();
+				insideHumid = insideHumid + insideVec[i]->get_humidity();
+				i++;
+				n++;
+			}
+			if (n != 0)
+			{
+				insideTemp = insideTemp / n;
+				insideHumid = insideHumid / n;
+			}
 		}
-	}
-	for(int i = 0)
+		n = 0;
+		if (j < vecsizeOut)
+		{
+			while (j < vecsizeOut && outsideVec[j]->get_time() < hour_counter * 3600)
+			{
+				outsideTemp = outsideTemp + outsideVec[j]->get_temperature();
+				outsideHumid = outsideHumid + outsideVec[j]->get_humidity();
+				j++;
+				n++;
+			}
+			if (n != 0)
+			{
+				outsideTemp = outsideTemp / n;
+				outsideHumid = outsideHumid / n;
+			}
+		}
+		n = 0;
+		if (insideTemp + outsideTemp != 0)
+		{
+			tempDifference = abs(insideTemp - outsideTemp);
+		}
+		if (insideHumid + outsideHumid != 0)
+		{
+			humidDifference = abs(insideHumid - outsideHumid);
+		}
+
+		bDoorVector.push_back(new tempData(insideTemp, outsideTemp, tempDifference, insideHumid, outsideHumid, humidDifference));
+
+		hour_counter++;
+	} while (bDoorVector.size() < 24);
 }
 
 // Algorithm that calculates how long the balcony door in the room has been open, in hours.
-int Rawdata::doorOpen(std::vector <tempData> &bDoorVector, std::vector <Rawdata *> &rawvector)
+void Rawdata::doorOpen(std::vector <tempData *> &bDoorVector, Rawdata * &rawVecElement, int &doorOpenHours)
 {
-	float inside, outside, difference;
+	float diffCheck;
+	rawVecElement->hourlyAverageTemp(bDoorVector, rawVecElement->dataInside, rawVecElement->dataOutside);
 
-	int vecsize = rawvector.size();
-
-	for (int i = 0; i < vecsize; i++)
+	doorOpenHours = 0;
+	for (int i = 1; i < 24; i++)
 	{
-		rawvector[i].hourlyAverageTemp(rawvector[i]->dataInside, rawvector[i]->dataOutside);
+		if (bDoorVector[i - 1]->get_tempInside() != 0 || bDoorVector[i - 1]->get_tempOutside() != 0
+			&& bDoorVector[i]->get_tempInside() != 0 || bDoorVector[i]->get_tempOutside() != 0)
+		{
+			if(bDoorVector[i - 1]->get_tempDifference() > bDoorVector[i]->get_tempDifference())
+			{
+				diffCheck = abs(bDoorVector[i - 1]->get_tempInside() - bDoorVector[i]->get_tempInside());
+				if (diffCheck > 0.2 && bDoorVector[i - 1]->get_tempInside() < bDoorVector[i]->get_tempInside())
+				{
+					doorOpenHours++;
+				}
+			}
+		}
+	}
+	for (int i = 23; i > -1; i--)
+	{
+		delete bDoorVector[i];
+		bDoorVector.pop_back();
 	}
 }
 
@@ -467,7 +523,7 @@ void Rawdata::searchDate(std::vector <Rawdata *> &vector, std::string date, bool
 {
 	unsigned int vecsize = vector.size();
 	int n;
-	
+
 	n = binarySearch(vector, 0, vecsize, date);
 
 	if (inOut)

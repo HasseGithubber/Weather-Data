@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <stdlib.h>
 
 class Rawdata
 {
@@ -39,7 +40,7 @@ public:
 
 	// Data hantering
 	void fileInput(std::vector <Rawdata *> &);
-	void convertData(std::vector <Rawdata *> &);
+	void convertData(std::vector <Rawdata *> &, std::vector <tempData *> &);
 
 	// Data kalkylering
 	void averageTemperature(Rawdata * &, float &, bool);
@@ -53,7 +54,10 @@ public:
 
 	void findHighLowtemp(std::vector <Rawday *> &, float &, float &);
 	float temperatureDiffInOut(Rawdata * &);
-	int doorOpen(std::vector <Rawdata *> &, bool);
+
+	// Algorithm check if the door is open
+	void hourlyAverageTemp(std::vector <tempData *> &, std::vector <Rawday *> &, std::vector <Rawday *> &);
+	void doorOpen(std::vector <tempData *> &, Rawdata * &, int &);
 
 	// Binär sökning efter datum
 	int binarySearch(std::vector <Rawdata *> &, int, int, std::string);

@@ -11,7 +11,7 @@ void Program::loadProcessData()
 	std::cout << " Loading in raw data" << std::endl;
 	access.fileInput(rawData);
 	std::cout << " Analyzing data" << std::endl;
-	access.convertData(rawData);
+	access.convertData(rawData, balconyDoorVector);
 	mainmenu();
 }
 
@@ -205,6 +205,10 @@ void Program::searchSeason()
 			break;
 		}
 	} while (stay);
+	if (answer[0] == '5')
+	{
+
+	}
 }
 
 Program::~Program()
