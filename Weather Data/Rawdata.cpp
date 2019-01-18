@@ -408,7 +408,8 @@ void Rawdata::doorOpen(std::vector <tempData *> &bDoorVector, Rawdata * &rawVecE
 	}
 }
 
-/* */
+/*The algorithm that counts the average temperature and humidity for each hour of one day, inside and outside.
+It also counts the difference beetween the temperatures and humidity and puts it into the balcony vector*/
 void Rawdata::hourlyAverageTemp(std::vector <tempData *> &bDoorVector, std::vector <Rawday *> &insideVec, std::vector <Rawday *> &outsideVec)
 {
 	int vecsizeIn = insideVec.size();
@@ -476,7 +477,7 @@ void Rawdata::searchDate(std::vector <Rawdata *> &vector, std::string date, bool
 	unsigned int vecsize = vector.size();
 	int n;
 
-	n = binarySearch(vector, 0, vecsize, date);
+	n = binarySearch(vector, 0, vecsize - 1, date);
 	if (n != -1)
 	{
 		if (inOut)
@@ -515,35 +516,34 @@ is what we are looking for or if not if it's higher or lower than that. If not i
 repeats the process until the right spot has been found. It's a quick way to search for a value in a sorted array.*/
 int Rawdata::binarySearch(std::vector <Rawdata *> &vector, int low, int high, std::string date)
 {
-	int i_low;
-	int i_high;
-	if (high > low)
+	int i_low = low;
+	int i_high = high;
+	int mid;
+	while (i_high >= i_low)
 	{
-		if (vector[low / 2 + high / 2]->get_date() == date)
+		mid = i_low / 2 + i_high / 2;
+		if (vector[mid]->get_date() == date)
 		{
-			return low / 2 + high / 2;
-		}
-		if (vector[low / 2 + high / 2]->get_date() < date)
+			return mid;
+
+		} else if (vector[mid]->get_date() < date)
 		{
-			i_low = low / 2 + high / 2;
-			return binarySearch(vector, i_low + 1, high, date);
+			i_low = mid + 1;
 		}
 		else
 		{
-			i_high = low / 2 + high / 2;
-			return binarySearch(vector, low, i_high - 1, date);
+			i_high = mid - 1;
 		}
 	}
 	return -1;
 }
 
-
 //-------------------------------------------------------------------------------------
 // :: Searches for the meteorological start of a season, currently just autumn or winter
 //-------------------------------------------------------------------------------------
 
-/*Searches through the raw vectors average temperatures and looks for when 5 days in a row are all below 10
-or 0, when found it stops and prints the date belonging to the index that was at the index i.*/
+/*Searches through the raw vectors average temperatures and looks for when five days in a row are all below 10
+or 0, when found it stops and prints the date belonging to the index that was at index "i".*/
 void Rawdata::SearchSeason(std::vector <Rawdata *> &rawvector, float seasonTempLimit)
 {
 	unsigned int vecsize = rawvector.size();
