@@ -374,7 +374,8 @@ void Rawdata::findHighLowtemp(std::vector <Rawday *> &vector, float & high, floa
 //----------------------------------------------------------------
 
 
-/*Algorithm that calculates how long the balcony door in the room has been open, in hours.*/
+/*Algorithm that calculates how long the balcony door in the room has been open, in hours.
+-- Found a fault in the algorithm, the first hour never gets represented.--*/
 void Rawdata::doorOpen(std::vector <tempData *> &bDoorVector, Rawdata * &rawVecElement, int &doorOpenHours)
 {
 	float diffTemp, diffHumid;
@@ -399,11 +400,6 @@ void Rawdata::doorOpen(std::vector <tempData *> &bDoorVector, Rawdata * &rawVecE
 				}
 			}
 		}
-	}
-	for (int i = 23; i > -1; i--)
-	{
-		delete bDoorVector[i];
-		bDoorVector.pop_back();
 	}
 }
 
@@ -476,28 +472,34 @@ void Rawdata::searchDate(std::vector <Rawdata *> &vector, std::string date, bool
 	int n;
 
 	n = binarySearch(vector, 0, vecsize, date);
-
-	if (inOut)
+	if (n != -1)
 	{
-		std::cout << "--------------------\n"
-			<< " Date : " << vector[n]->get_date() << "\n"
-			<< " Average temperature : " << vector[n]->analyzedInside.get_aveTemperature() << "\n"
-			<< " Average humidity : " << vector[n]->analyzedInside.get_aveHumidity() << "\n"
-			<< " Mold Index : " << vector[n]->analyzedInside.get_aveMoldIndex() << "\n"
-			<< " -------------\n"
-			<< " Moldrisk total time : " << vector[n]->analyzedInside.get_moldriskTime() << "\n"
-			<< " Mold Index for that time : " << vector[n]->analyzedInside.get_aveMoldIndTime() << "\n";
+		if (inOut)
+		{
+			std::cout << "--------------------\n"
+				<< " Date : " << vector[n]->get_date() << "\n"
+				<< " Average temperature : " << vector[n]->analyzedInside.get_aveTemperature() << "\n"
+				<< " Average humidity : " << vector[n]->analyzedInside.get_aveHumidity() << "\n"
+				<< " Mold Index : " << vector[n]->analyzedInside.get_aveMoldIndex() << "\n"
+				<< " -------------\n"
+				<< " Moldrisk total time : " << vector[n]->analyzedInside.get_moldriskTime() << "\n"
+				<< " Mold Index for that time : " << vector[n]->analyzedInside.get_aveMoldIndTime() << "\n";
+		}
+		else
+		{
+			std::cout << "--------------------\n"
+				<< " Date : " << vector[n]->get_date() << "\n"
+				<< " Average temperature : " << vector[n]->analyzedOutside.get_aveTemperature() << "\n"
+				<< " Average humidity : " << vector[n]->analyzedOutside.get_aveHumidity() << "\n"
+				<< " Mold Index : " << vector[n]->analyzedOutside.get_aveMoldIndex() << "\n"
+				<< " -------------\n"
+				<< " Moldrisk total time : " << vector[n]->analyzedOutside.get_moldriskTime() << "\n"
+				<< " Mold Index for that time : " << vector[n]->analyzedOutside.get_aveMoldIndTime() << "\n";
+		}
 	}
 	else
 	{
-		std::cout << "--------------------\n"
-			<< " Date : " << vector[n]->get_date() << "\n"
-			<< " Average temperature : " << vector[n]->analyzedOutside.get_aveTemperature() << "\n"
-			<< " Average humidity : " << vector[n]->analyzedOutside.get_aveHumidity() << "\n"
-			<< " Mold Index : " << vector[n]->analyzedOutside.get_aveMoldIndex() << "\n"
-			<< " -------------\n"
-			<< " Moldrisk total time : " << vector[n]->analyzedOutside.get_moldriskTime() << "\n"
-			<< " Mold Index for that time : " << vector[n]->analyzedOutside.get_aveMoldIndTime() << "\n";
+		std::cout << "Date not found" << "\n";
 	}
 }
 
@@ -508,21 +510,24 @@ int Rawdata::binarySearch(std::vector <Rawdata *> &vector, int low, int high, st
 {
 	int i_low;
 	int i_high;
-	if (vector[low / 2 + high / 2]->get_date() == date)
+	if (high > low)
 	{
-		return low / 2 + high / 2;
+		if (vector[low / 2 + high / 2]->get_date() == date)
+		{
+			return low / 2 + high / 2;
+		}
+		if (vector[low / 2 + high / 2]->get_date() < date)
+		{
+			i_low = low / 2 + high / 2;
+			return binarySearch(vector, i_low + 1, high, date);
+		}
+		else
+		{
+			i_high = low / 2 + high / 2;
+			return binarySearch(vector, low, i_high - 1, date);
+		}
 	}
-	if (vector[low / 2 + high / 2]->get_date() < date)
-	{
-		i_low = low / 2 + high / 2;
-		return binarySearch(vector, i_low, high, date);
-	}
-	else
-	{
-		i_high = low / 2 + high / 2;
-		return binarySearch(vector, low, i_high, date);
-	}
-	return 0;
+	return -1;
 }
 
 
