@@ -571,9 +571,9 @@ void Rawdata::SearchSeason(std::vector <Rawdata *> &rawvector, float seasonTempL
 	}
 }
 
-//-----------------------------------------
-// WIP temperature diff och dooropen kör dom i inside object :: Sorts the wanted data and prints the top 5 highest and lowest
-//-----------------------------------------
+//----------------------------------------------------------------
+// :: Sorts the wanted data and prints the top 5 highest and lowest
+//----------------------------------------------------------------
 
 /*Functions which are used in the stable sort command, it tells the sorter what to sort and in what order*/
 bool Rawdata::compareFloat(const tempData &a, const tempData &b)
