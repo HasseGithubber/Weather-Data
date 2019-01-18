@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="2.11">
+    <attributes>
+        <attribute name="name" value=""/>
+        <attribute name="authors" value="hasse"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2019-01-18 10:23:13 "/>
+        <attribute name="created" value="aGFzc2U7SEFTU0UtTEVHSU9OOzIwMTktMDEtMTg7IjA4OjQzOjI1ICI7MjU5NA=="/>
+        <attribute name="edited" value="aGFzc2U7SEFTU0UtTEVHSU9OOzIwMTktMDEtMTg7IjEwOjIzOjEzICI7MTsyNjkw"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <comment text="Takes in balconyDoorVector as reference.&#13;&#10;An elemnt of the rawData vector as reference.&#13;&#10;An integer doorOpenHours as reference."/>
+            <declare name="diffTemp, diffhumid" type="Real" array="False" size=""/>
+            <call expression="hourlyAverageTemp"/>
+            <assign variable="doorOpenHours" expression="0"/>
+            <for variable="i" start="0" end="25" direction="inc" step="1">
+                <if expression="balconydoorvector[i - 1] inne temperatur != 0 || balconydorrvector[i - 1] inne temperatur != 0 &amp;&amp; balconydoorvector[i] inne temperatur != 0 || balconydorrvector[i] inne temperatur != 0">
+                    <then>
+                        <if expression="balconydoorvector[i - 1] inne temperatur differans &gt; balconydoorvector[i] inne temperatur differans &amp;&amp;     balconydorrvector[i - 1] inne fuktighet differans &gt; balconydorrvector[i] inne fuktighet differans">
+                            <then>
+                                <assign variable="diffTemp" expression="abs(balconydoorvector[i - 1] inne temperatur - balconydoorvector[i] inne temperatur"/>
+                                <assign variable="diffHumid" expression="abs(balconydoorvector[i - 1] inne fuktighet - balconydoorvector[i] inne fuktighet"/>
+                                <if expression="diffTemp &gt; 0.2 &amp;&amp; balconydoorvector[i - 1] inne temperatur &lt; balconydoorvector[i] inne temperatur&#13;&#10;&amp;&amp; diffHumid &gt; 0.2 &amp;&amp; balconydoorvector[i - 1] inne fuktighet &lt; balconydoorvector[i] inne fuktighet">
+                                    <then>
+                                        <assign variable="dooropenhours" expression="dooropenhours + 1"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </then>
+                            <else/>
+                        </if>
+                    </then>
+                    <else/>
+                </if>
+            </for>
+        </body>
+    </function>
+</flowgorithm>

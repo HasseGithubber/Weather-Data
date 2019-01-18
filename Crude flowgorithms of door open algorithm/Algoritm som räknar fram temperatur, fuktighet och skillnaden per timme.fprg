@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="2.11">
+    <attributes>
+        <attribute name="name" value=""/>
+        <attribute name="authors" value="hasse"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2019-01-18 10:09:16 "/>
+        <attribute name="created" value="aGFzc2U7SEFTU0UtTEVHSU9OOzIwMTktMDEtMTg7IjA5OjM5OjMxICI7MjU5Nw=="/>
+        <attribute name="edited" value="aGFzc2U7SEFTU0UtTEVHSU9OOzIwMTktMDEtMTg7IjEwOjA5OjE2ICI7MTsyNjk3"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <comment text="Takes the balconyDoorVector as reference.&#13;&#10;And the inside and outside vector of the class Rawday contained in the element currently sending from Rawdata vector."/>
+            <declare name="vecsizeIn, vecsizeOut" type="Integer" array="False" size=""/>
+            <declare name="insideTemp, outsideTemp, tempDifference, insideHumid, outsideHumid, humidDifference" type="Real" array="False" size=""/>
+            <declare name="hourcounter, i, j, n" type="Integer" array="False" size=""/>
+            <do expression="">
+                <if expression="i &lt; vecsizeIn">
+                    <then>
+                        <while expression="i &lt; vecsizeIn &amp;&amp; Innevectorns[i] tid &lt; hourcounter * 3600">
+                            <assign variable="insideTemp" expression="insideTemp + Innevectorns[i] temperature"/>
+                            <assign variable="insideHumid" expression="insideHumid + Innevectorns[i] fuktighet"/>
+                            <assign variable="i" expression="i + 1"/>
+                            <assign variable="n" expression="n + 1"/>
+                        </while>
+                        <if expression="n != 0">
+                            <then>
+                                <assign variable="insideTemp" expression="insideTemp / n"/>
+                                <assign variable="insideHumid" expression="insideHumid / n"/>
+                            </then>
+                            <else/>
+                        </if>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="j &lt; vecsizeOut">
+                    <then>
+                        <while expression="j &lt; vecsizeOut &amp;&amp; Utevectorns[i] tid &lt; hourcounter * 3600">
+                            <assign variable="outsideTemp" expression="outsideTemp + Utevectorns[i] temperature"/>
+                            <assign variable="outsideHumid" expression="outsideHumid + Utevectorns[i] fuktighet"/>
+                            <assign variable="j" expression="j + 1"/>
+                            <assign variable="n" expression="n + 1"/>
+                        </while>
+                        <if expression="n != 0">
+                            <then>
+                                <assign variable="outsideTemp" expression="outsideTemp / n"/>
+                                <assign variable="outsideHumid" expression="outsideHumid / n"/>
+                            </then>
+                            <else/>
+                        </if>
+                        <assign variable="n" expression="0"/>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="insideTemp + outsideTemp != 0">
+                    <then>
+                        <assign variable="tempDifference" expression="abs(insideTemp - outsideTemp)"/>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="insideHumid + outsideHumid != 0">
+                    <then>
+                        <assign variable="humidDifference" expression="abs(insideHumid - outsideHumid)"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="balconyDoorVector" expression="pushback new tempData(insideTemp, outsideTemp, tempDifference, insideHumid, outsideHumid, humidDifference"/>
+                <assign variable="hourcounter" expression="hourcounter + 1"/>
+            </do>
+        </body>
+    </function>
+</flowgorithm>
