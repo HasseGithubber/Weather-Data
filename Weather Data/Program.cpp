@@ -23,7 +23,7 @@ void Program::mainmenu()
 {
 	system("cls");
 	bool stay = true;
-	int vecsize, vecsizebd;
+	int vecsize;
 	do
 	{
 		std::cout << " -Weather Analyzer-" << std::endl;
@@ -52,14 +52,9 @@ void Program::mainmenu()
 		case '5':
 			access.deleteVectors(rawData);
 			vecsize = rawData.size();
-			vecsizebd = balconyDoorVector.size();
 			for (int i = 0; i < vecsize; i++)
 			{
 				delete rawData[i];
-			}
-			for (int i = 0; i < vecsizebd; i++)
-			{
-				delete balconyDoorVector[i];
 			}
 			stay = false;
 			break;

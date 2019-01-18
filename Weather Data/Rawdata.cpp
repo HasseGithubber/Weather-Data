@@ -136,7 +136,7 @@ I chose to mainly send data through the other methods by reference because of ke
 void Rawdata::convertData(std::vector <Rawdata *> &rawvector, std::vector <tempData *> &bDoorVector)
 {
 	float aveTemperature;
-	int aveHumidity, moldRiskTime, doorOpen_hours;
+	int aveHumidity, moldRiskTime, doorOpen_hours = 0;
 	double aveMoldIndexTime, aveMoldIndex;
 
 	unsigned int vecsize = rawvector.size();
@@ -387,19 +387,24 @@ void Rawdata::doorOpen(std::vector <tempData *> &bDoorVector, Rawdata * &rawVecE
 		if (bDoorVector[i - 1]->get_tempInside() != 0 || bDoorVector[i - 1]->get_tempOutside() != 0
 			&& bDoorVector[i]->get_tempInside() != 0 || bDoorVector[i]->get_tempOutside() != 0)
 		{
-			if(bDoorVector[i - 1]->get_tempDifference() > bDoorVector[i]->get_tempDifference()
+			if (bDoorVector[i - 1]->get_tempDifference() > bDoorVector[i]->get_tempDifference()
 				&& bDoorVector[i - 1]->get_humidDifference() > bDoorVector[i]->get_humidDifference())
 			{
 				diffTemp = abs(bDoorVector[i - 1]->get_tempInside() - bDoorVector[i]->get_tempInside());
 				diffHumid = abs(bDoorVector[i - 1]->get_humidInside() - bDoorVector[i]->get_humidInside());
 
-				if (diffTemp > 0.2 && bDoorVector[i - 1]->get_tempInside() < bDoorVector[i]->get_tempInside()
-					&& diffHumid > 0.2 && bDoorVector[i - 1]->get_humidInside() - bDoorVector[i]->get_humidInside())
+				if (diffTemp > 0.15 && bDoorVector[i - 1]->get_tempInside() < bDoorVector[i]->get_tempInside()
+					&& diffHumid > 0.2 && bDoorVector[i - 1]->get_humidInside() < bDoorVector[i]->get_humidInside())
 				{
 					doorOpenHours++;
 				}
 			}
 		}
+	}
+	for (int i = 23; i > -1; i--)
+	{
+		delete bDoorVector[i];
+		bDoorVector.pop_back();
 	}
 }
 
@@ -483,7 +488,8 @@ void Rawdata::searchDate(std::vector <Rawdata *> &vector, std::string date, bool
 				<< " Mold Index : " << vector[n]->analyzedInside.get_aveMoldIndex() << "\n"
 				<< " -------------\n"
 				<< " Moldrisk total time : " << vector[n]->analyzedInside.get_moldriskTime() << "\n"
-				<< " Mold Index for that time : " << vector[n]->analyzedInside.get_aveMoldIndTime() << "\n";
+				<< " Mold Index for that time : " << vector[n]->analyzedInside.get_aveMoldIndTime() << "\n"
+				<< " -------------\n";
 		}
 		else
 		{
@@ -494,7 +500,8 @@ void Rawdata::searchDate(std::vector <Rawdata *> &vector, std::string date, bool
 				<< " Mold Index : " << vector[n]->analyzedOutside.get_aveMoldIndex() << "\n"
 				<< " -------------\n"
 				<< " Moldrisk total time : " << vector[n]->analyzedOutside.get_moldriskTime() << "\n"
-				<< " Mold Index for that time : " << vector[n]->analyzedOutside.get_aveMoldIndTime() << "\n";
+				<< " Mold Index for that time : " << vector[n]->analyzedOutside.get_aveMoldIndTime() << "\n"
+				<< " -------------\n";
 		}
 	}
 	else
@@ -608,7 +615,7 @@ void Rawdata::sortData(std::vector <tempData> &sortVector, std::vector <Rawdata 
 	case e_aveHumidity:
 		typeLabel = " Average humidity : ";
 		std::stable_sort(sortVector.begin(), sortVector.end(), compareInt);
-		printVectorTop(sortVector, typeLabel, false);
+		printVectorTop(sortVector, typeLabel, true);
 		break;
 	case e_aveMoldIndex:
 		typeLabel = " Average mold index : ";
@@ -672,12 +679,12 @@ void Rawdata::printVectorTop(std::vector <tempData> &sortVector, std::string lab
 	{
 		if (intType)
 		{
-			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << " Date : " << sortVector[i].get_date() << "\t";
 			std::cout << labelType << sortVector[i].get_intValue() << "\n";
 		}
 		else
 		{
-			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << " Date : " << sortVector[i].get_date() << "\t";
 			std::cout << labelType << sortVector[i].get_floatValue() << "\n";
 		}
 	}
@@ -686,12 +693,12 @@ void Rawdata::printVectorTop(std::vector <tempData> &sortVector, std::string lab
 	{
 		if (intType)
 		{
-			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << " Date : " << sortVector[i].get_date() << "\t";
 			std::cout << labelType << sortVector[i].get_intValue() << "\n";
 		}
 		else
 		{
-			std::cout << " Date : " << sortVector[i].get_date() << "\n";
+			std::cout << " Date : " << sortVector[i].get_date() << "\t";
 			std::cout << labelType << sortVector[i].get_floatValue() << "\n";
 		}
 	}

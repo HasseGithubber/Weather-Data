@@ -60,7 +60,7 @@ public:
 	void aveMold_Index(std::vector <Rawday *> &, double &);
 	void moldRisk_time(std::vector <Rawday *> &, int &, double &);
 
-	///*Old code saved for myself*/
+	/*Old code saved for myself*/
 	//float temperatureDifferenceSep(Rawdata * &, bool);
 
 	/*Calculates the highest difference between in and out temperature*/
